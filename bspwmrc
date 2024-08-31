@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# bspc monitor eDP1 -d 1 2 3 4 5 6 7 8 9
-bspc monitor DP-0 -d 1 2 3 4 5 6 7 8 9
-bspc monitor DP-2 -d 1 2 3 4 5 6 7 8 9
-
 bspc config window_gap 15
 bspc config border_width 2
 bspc config normal_border_color   "#282828"
@@ -19,6 +15,30 @@ bspc config remove_disabled_monitors true
 bspc config remove_unplugged_monitors true
 bspc config merge_overlapping_monitors true
 
+LAPTOP=1
+
+
+# Check for Connected monitor
+if [[ $(xrandr -q | grep 'HDMI2 connected') ]]; then
+	xrandr --output eDP1 --primary --mode 1366x768 --pos 277x1080 --rotate normal --output DP1 --off --output DP2 --off --output HDMI1 --off --output HDMI2 --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
+	bspc monitor HDMI2 -d 1 2 3 4 5 6 7 8 9
+else
+	bspc monitor HDMI2 --remove
+
+	if [[ $LAPTOP = 1 ]]; then
+		xrandr --output eDP1 --primary --mode 1366x768 --pos 0x0 --rotate normal --output DP1 --off --output DP2 --off --output HDMI1 --off --output HDMI2 --off --output VIRTUAL1 --off
+	else
+		xrandr --output HDMI-0 --off --output DP-0 --primary --mode 1920x1080 --pos 1920x0 --rotate normal --output DP-1 --off --output DP-2 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off --output DP-4 --off --output DP-5 --off
+	fi
+fi
+
+if [[ $LAPTOP = 1 ]]; then
+	bspc monitor eDP1 -d 1 2 3 4 5 6 7 8 9
+else
+	bspc monitor DP-0 -d 1 2 3 4 5 6 7 8 9
+	bspc monitor DP-2 -d 1 2 3 4 5 6 7 8 9
+fi
+
 _JAVA_AWT_WM_NONREPARENTING=1
 wmname LG3D
 
@@ -27,11 +47,12 @@ is_running() {
     pgrep "$1" > /dev/null 2>&1
 }
 
-is_running sxhkd || sxhkd &
 ~/.screenlayout/main.sh &
-is_running nitrogen || nitrogen --restore &
+~/.config/polybar/launch_polybar.sh &
+nitrogen --restore &
+
+is_running sxhkd || sxhkd &
 is_running udiskie || udiskie &
 is_running xclip || xclip &
 is_running easyeffects || easyeffects &
 is_running solaar || solaar &
-is_running polybar || ~/.config/polybar/launch_polybar.sh
