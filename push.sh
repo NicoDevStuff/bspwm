@@ -1,5 +1,6 @@
 git add .
 
+rn -rf sxhkd polybar
 cp -r ../sxhkd ./sxhkd
 cp -r ../polybar ./polybar
 
